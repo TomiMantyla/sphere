@@ -6,6 +6,7 @@ export(int) var freq = 1
 export(Vector3) var start_point = Vector3(0,0,0)
 
 var vertices = []
+var st = SurfaceTool.new()
 
 const hcoff = 0.86602540378
 
@@ -24,15 +25,42 @@ func down_neighbours(i,j): #Ei määritelty ensimmäiselle verteksille!
 	return([left,right])
 	pass
 
+func meshify():
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.add_color(Color(0, 1, 0, 1));
+	var f = freq+1
+	for i in range(f):
+		for j in range(i+1):
+			#Ensin ylöspäin osoittavat kolmiot
+			if vertices[i+1][j]!=null: #Tämän pitäis rittää... ehkä voisi tehdä myös indekseillä?
+				st.add_color(Color(1, 0, 0, 1));
+				st.add_vertex(vertices[i][j])
+				st.add_vertex(vertices[i+1][j+1])
+				st.add_vertex(vertices[i+1][j])
+			#Sitten alaspäin osoittavat kolmiot
+			if i<freq && vertices[i][j+1]!=null: #Niin tämänkin...
+				st.add_color(Color.blue)
+				st.add_vertex(vertices[i][j])
+				st.add_vertex(vertices[i][j+1])
+				st.add_vertex(vertices[i+1][j+1])
+	mesh = st.commit()
+
+
 func _ready():
 	
 	#print(vertex_at(0,2))
 	
-	var top = Vector3(0.5*side_length, hcoff*side_length, 0.0)
-	var adj = Vector3(side_length, 0.0, 0.0)
+	#var top = Vector3(0.5*side_length, hcoff*side_length, 0.0)
+	#var adj = Vector3(side_length, 0.0, 0.0)
 	
-	var t_top = top/freq
-	var t_adj = adj/freq
+	var down = Vector3(-0.5*side_length, -1.0*hcoff*side_length, 0.0)
+	var right = Vector3(side_length, 0.0, 0.0)
+	
+	#var t_top = top/freq
+	#var t_adj = adj/freq
+	
+	var t_down = down/freq
+	var t_right = right/freq
 	
 	var f = freq+1
 	print(freq)
@@ -47,10 +75,11 @@ func _ready():
 		#print(i)
 		for j in range(i+1):
 			#print("    "+str(j))
-			vertices[i][j]=(j*t_adj + i*t_top)
+			vertices[i][j]=(i*t_down + j*t_right)
 	#print(vertices)
 	for i in range(f+1):
 		for j in range(i+1):
 			print(str(i)+","+str(j)+"   "+str(up_neighbours(i,j))+"   "+str(down_neighbours(i,j)))
 		#print(vertices[i])
+	meshify()
 	
