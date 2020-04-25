@@ -5,59 +5,24 @@ export var side_length = 1.0
 export(int) var freq = 1
 export(Vector3) var start_point = Vector3(0,0,0)
 
-var vertices = PoolVector3Array()
+var vertices = []
 
 const hcoff = 0.86602540378
 
+func up_neighbours(i,j):
+	var left
+	var right
+	left = [i+1,j]
+	right = [i+1,j+1]
+	return([left,right])
 
-func vertex_at(vec):
-	var x_coord=vec.x
-	var y_coord=vec.y
-	#var f = freq+1
-	#var i = 0
-	#for y in range(y_coord):
-	#	i += f
-	#	f -= 1
-	#print("for-luuppi: "+str(i))
-	#var i = (freq+1)*y_coord-(y_coord-1)*y_coord/2+x_coord
-	return(y_coord*((freq+1)*y_coord-(y_coord-1))/2+x_coord)
-
-func get_row(index):
-	var f=freq+1
-	var i = index
-	while i >= f:
-		i -= f
-		f -= 1
-	return(freq+1-f)
-
-func get_column(index):
-	var f = freq+1
-	var i = index
-	while i >= f:
-		i -= f
-		f -= 1
-	return(i)
-		
-func get_xy(index):
-	var f=freq+1
-	var i = index
-	while i >= f:
-		i -= f
-		f -= 1
-	return(Vector2(i,freq+1-f))
-	
-func up_neighbours(index):
-	#print("up_neighbours")
-	var left = null
-	var upper = null
-	#if index+1<vertices.size():
-	if index+1<vertices.size() && get_row(index) == get_row(index+1):
-		#left = vertices[index+1]
-		left = index+1
-		print(get_xy(index)+Vector2.DOWN)
-		#upper = vertices[vertex_at(get_xy(index)+Vector2.DOWN)] #Yeah, DOWN, really
-		upper = vertex_at(get_xy(index)+Vector2.DOWN) #Yeah, DOWN, really
-	return([left, upper])
+func down_neighbours(i,j): #Ei määritelty ensimmäiselle verteksille!
+	var left
+	var right
+	left = [i,j+1]
+	right = [i+1,j+1]
+	return([left,right])
+	pass
 
 func _ready():
 	
@@ -72,16 +37,20 @@ func _ready():
 	var f = freq+1
 	print(freq)
 	
-	vertices.resize(f*(f+1)/2)
-	#vertices.resize(freq*freq)
-	#print(vertices.size())
-
-	var i = 0
-	for fv in range(f):
-		for fh in range(f-fv):
-			vertices[i]=(fh*t_adj + fv*t_top)
-			i+=1
+	vertices.resize(f+1) #Eli freq+2, jotta saataisiin null loppuun
+	for i in range(f+1):
+		vertices[i] = []
+		vertices[i].resize(i+2) #Taas yksi ylimääräinen nullia varten
+	print(vertices)
+	
+	for i in range(f):
+		#print(i)
+		for j in range(i+1):
+			#print("    "+str(j))
+			vertices[i][j]=(j*t_adj + i*t_top)
 	#print(vertices)
-	for i in range(f*(f+1)/2):
-		print(str(i)+" : "+str(get_xy(i)))
-		print("Neighbours: "+str(i)+" : "+str(up_neighbours(i)))
+	for i in range(f+1):
+		for j in range(i+1):
+			print(str(i)+","+str(j)+"   "+str(up_neighbours(i,j))+"   "+str(down_neighbours(i,j)))
+		#print(vertices[i])
+	

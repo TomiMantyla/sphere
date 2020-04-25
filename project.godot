@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="Cube"
+config/name="Sphere"
 run/main_scene="res://Cube-scene.tscn"
 config/icon="res://icon.png"
 
