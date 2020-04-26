@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Cube.gd" type="Script" id=1]
 [ext_resource path="res://MeshInstance.gd" type="Script" id=2]
 [ext_resource path="res://TriangleTesselation.gd" type="Script" id=3]
+[ext_resource path="res://Icosahedron.gd" type="Script" id=4]
 
 [sub_resource type="SpatialMaterial" id=1]
 vertex_color_use_as_albedo = true
@@ -15,10 +16,14 @@ params_cull_mode = 2
 [sub_resource type="SpatialMaterial" id=3]
 vertex_color_use_as_albedo = true
 
+[sub_resource type="SpatialMaterial" id=4]
+params_cull_mode = 1
+albedo_color = Color( 0.12549, 0.996078, 0, 1 )
+
 [node name="Spatial" type="Spatial"]
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 1 )
+transform = Transform( 1, 0, 0, 0, -0.227705, -0.97373, 0, 0.97373, -0.227705, 0, -5, -1.53615 )
 
 [node name="Cube" type="MeshInstance" parent="."]
 visible = false
@@ -32,6 +37,14 @@ skeleton = NodePath("")
 script = ExtResource( 2 )
 
 [node name="TriangleTesselation" type="MeshInstance" parent="."]
+visible = false
 material_override = SubResource( 3 )
 script = ExtResource( 3 )
-freq = 12
+freq = 6
+
+[node name="Icosahedron" type="MeshInstance" parent="."]
+material_override = SubResource( 4 )
+script = ExtResource( 4 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.782217, 0.623006, 0, -0.623006, 0.782217, 0, 2.49447, 6.76577 )

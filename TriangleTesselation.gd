@@ -17,7 +17,7 @@ func up_neighbours(i,j):
 	right = [i+1,j+1]
 	return([left,right])
 
-func down_neighbours(i,j): #Ei määritelty ensimmäiselle verteksille!
+func down_neighbours(i,j):
 	var left
 	var right
 	left = [i,j+1]
@@ -79,7 +79,10 @@ func _ready():
 	#print(vertices)
 	for i in range(f+1):
 		for j in range(i+1):
-			print(str(i)+","+str(j)+"   "+str(up_neighbours(i,j))+"   "+str(down_neighbours(i,j)))
+			pass
+			#print(str(i)+","+str(j)+"   "+str(up_neighbours(i,j))+"   "+str(down_neighbours(i,j)))
 		#print(vertices[i])
 	meshify()
-	
+
+#func _process(delta): 
+	#rotate_y(delta)
