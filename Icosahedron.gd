@@ -27,27 +27,37 @@ func _ready():
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	#Top --Who says which vertex is on top?
+	st.add_color(Color.blue)
 	for i in range(1,6):
 		st.add_vertex(vertices[0])
-		st.add_vertex(vertices[i])
 		st.add_vertex(vertices[i%5+1])
+		st.add_vertex(vertices[i])
 	#st.add_vertex(vertices[0])
 	#st.add_vertex(vertices[5])
 	#st.add_vertex(vertices[1])
 	
+		
 	#Bottom
 	for i in range(1, 6):
 		st.add_vertex(vertices[11])
+		st.add_vertex(vertices[i+5])
+		st.add_vertex(vertices[i%5+6])
+	
+	#Side
+	st.add_color(Color.red)
+	for i in range(1,6):
+		st.add_vertex(vertices[i])
+		st.add_vertex(vertices[i%5+1])
+		st.add_vertex(vertices[i+5])
+	
+	st.add_color(Color.aquamarine)
+	for i in range(1,6):
+		st.add_vertex(vertices[i%5+1])
 		st.add_vertex(vertices[i%5+6])
 		st.add_vertex(vertices[i+5])
 	
-
+	st.generate_normals()
 	mesh = st.commit()
 	
-	
-	
-	
-	
-	
-	pass # Replace with function body.
-
+func _process(delta): 
+	rotate_y(delta)

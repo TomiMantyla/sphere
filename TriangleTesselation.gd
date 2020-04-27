@@ -27,13 +27,12 @@ func down_neighbours(i,j):
 
 func meshify():
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st.add_color(Color(0, 1, 0, 1));
 	var f = freq+1
 	for i in range(f):
 		for j in range(i+1):
 			#Ensin ylöspäin osoittavat kolmiot
 			if vertices[i+1][j]!=null: #Tämän pitäis rittää... ehkä voisi tehdä myös indekseillä?
-				st.add_color(Color(1, 0, 0, 1));
+				st.add_color(Color.red)
 				st.add_vertex(vertices[i][j])
 				st.add_vertex(vertices[i+1][j+1])
 				st.add_vertex(vertices[i+1][j])

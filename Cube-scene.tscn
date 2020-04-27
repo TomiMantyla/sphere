@@ -17,13 +17,13 @@ params_cull_mode = 2
 vertex_color_use_as_albedo = true
 
 [sub_resource type="SpatialMaterial" id=4]
-params_cull_mode = 1
-albedo_color = Color( 0.12549, 0.996078, 0, 1 )
+vertex_color_use_as_albedo = true
+params_specular_mode = 1
 
 [node name="Spatial" type="Spatial"]
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, -0.227705, -0.97373, 0, 0.97373, -0.227705, 0, -5, -1.53615 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
 
 [node name="Cube" type="MeshInstance" parent="."]
 visible = false
@@ -47,4 +47,4 @@ material_override = SubResource( 4 )
 script = ExtResource( 4 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.782217, 0.623006, 0, -0.623006, 0.782217, 0, 2.49447, 6.76577 )
+transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0, 5.79813, 1.55308 )
