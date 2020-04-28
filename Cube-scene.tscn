@@ -25,6 +25,7 @@ params_diffuse_mode = 1
 [sub_resource type="SpatialMaterial" id=5]
 vertex_color_use_as_albedo = true
 params_specular_mode = 1
+params_cull_mode = 2
 
 [node name="Spatial" type="Spatial"]
 
@@ -46,12 +47,12 @@ skeleton = NodePath("")
 script = ExtResource( 2 )
 
 [node name="TriangleTesselation" type="MeshInstance" parent="."]
+visible = false
 material_override = SubResource( 4 )
 script = ExtResource( 3 )
 freq = 10
 
 [node name="Icosahedron" type="MeshInstance" parent="."]
-visible = false
 material_override = SubResource( 5 )
 script = ExtResource( 4 )
 

@@ -59,5 +59,92 @@ func _ready():
 	st.generate_normals()
 	mesh = st.commit()
 	
+	var tri = TriTess.new(Vector3(0,1,0), Vector3(1,0,0), Vector3(-1, 0, 0))
+	mesh=tri.get_mesh()
+	
 func _process(delta): 
 	rotate_y(delta)
+
+class TriTess extends MeshInstance:
+
+	# Member variables
+	#export var side_length = 2.0
+	export(int) var freq = 3
+	
+	var top 
+	var right
+	var left 
+
+	var tri_mesh
+	var vertices = []
+	var st = SurfaceTool.new()
+	
+	const hcoff = 0.86602540378
+	
+	func meshify():
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		#Ensimmäinen kolmio
+		st.add_color(Color.red)
+		st.add_vertex(vertices[0][0])
+		st.add_vertex(vertices[1][1])
+		st.add_vertex(vertices[1][0])
+		var f = freq+1
+		for i in range(1, freq):
+			for j in range(i+1):
+				#Ensin ylöspäin osoittavat kolmiot
+				st.add_color(Color.red)
+				st.add_vertex(vertices[i][j])
+				st.add_vertex(vertices[i+1][j+1])
+				st.add_vertex(vertices[i+1][j])
+				#Sitten alaspäin osoittavat kolmiot
+			for j in range(i):
+				st.add_color(Color.blue)
+				st.add_vertex(vertices[i][j])
+				st.add_vertex(vertices[i][j+1])
+				st.add_vertex(vertices[i+1][j+1])
+		st.generate_normals()
+		tri_mesh = st.commit()
+	
+	func get_mesh():
+		calculate_vertices()
+		return(tri_mesh)
+	
+	func _init(v0, v1, v2):
+		
+		top = v0
+		right = v2
+		left = v1
+		
+	func calculate_vertices():
+		
+		print("täällä ollaan!")
+		#var down = Vector3(-0.5*side_length, -1.0*hcoff*side_length, 0.0)
+		#var right = Vector3(side_length, 0.0, 0.0)
+		
+		var tl = left - top
+		var r = right - left
+		
+		var t_down = tl/freq
+		var t_right = r/freq
+		
+		var f = freq+1
+		
+		vertices.resize(f) 
+		for i in range(f):
+			vertices[i] = []
+			vertices[i].resize(i+1)
+		
+		for i in range(f):
+			#print(i)
+			for j in range(i+1):
+				#print("    "+str(j))
+				vertices[i][j]=(i*t_down + j*t_right)
+		#print(vertices)
+		for i in range(f+1):
+			for j in range(i+1):
+				pass
+		meshify()
+	
+	#func _process(delta): 
+		#rotate_y(delta)
+	
