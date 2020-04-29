@@ -32,7 +32,7 @@ params_specular_mode = 1
 environment = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5 )
 
 [node name="Cube" type="MeshInstance" parent="."]
 visible = false
@@ -49,12 +49,12 @@ script = ExtResource( 2 )
 visible = false
 material_override = SubResource( 4 )
 script = ExtResource( 3 )
-freq = 10
+freq = 6
 
 [node name="Icosahedron" type="MeshInstance" parent="."]
 material_override = SubResource( 5 )
 script = ExtResource( 4 )
-frequency = 30
+frequency = 6
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0, 5.79813, 1.55308 )

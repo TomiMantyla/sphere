@@ -5,8 +5,13 @@ export var frequency = 1
 
 const phi = (1+sqrt(5))/2
 
+var radius
+
 var vertices = []
+var m
 var st = SurfaceTool.new()
+var mdt = MeshDataTool.new()
+
 
 func _ready():
 	
@@ -27,6 +32,7 @@ func _ready():
 	vertices[10] = Vector3(0.0, -phi, 1.0)
 	vertices[11] = Vector3(0.0, -phi, -1.0)
 	
+	radius = vertices[0].length()
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	#Top --Who says which vertex is on top?
@@ -71,7 +77,14 @@ func _ready():
 	#st.generate_normals()
 	#mesh = st.commit()
 	
-	mesh=st.commit()
+	m=st.commit()
+	mdt.create_from_surface(m, 0)
+	for i in range(mdt.get_vertex_count()):
+		var vertex = mdt.get_vertex(i)
+		mdt.set_vertex(i, vertex.normalized()*radius)
+	m.surface_remove(0)
+	mdt.commit_to_surface(m)
+	mesh = m
 	
 func _process(delta): 
 	rotate_y(delta)
@@ -90,6 +103,8 @@ class TriTess extends MeshInstance:
 	var vertices = []
 	var st
 	
+	var colors = [Color.red, Color.blue, Color.yellow, Color.green, Color.magenta, Color.cyan]
+	
 	#const hcoff = 0.86602540378
 	
 	func meshify():
@@ -106,7 +121,7 @@ class TriTess extends MeshInstance:
 		for i in range(1, freq):
 			for j in range(i+1):
 				#Ensin ylöspäin osoittavat kolmiot
-				st.add_color(Color.red)
+				st.add_color(colors[randi() % colors.size()])
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
 				st.add_normal(vertices[i+1][j+1])
@@ -115,7 +130,7 @@ class TriTess extends MeshInstance:
 				st.add_vertex(vertices[i+1][j])
 				#Sitten alaspäin osoittavat kolmiot
 			for j in range(i):
-				st.add_color(Color.blue)
+				st.add_color(colors[randi() % colors.size()])
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
 				st.add_normal(vertices[i][j+1])
@@ -134,6 +149,7 @@ class TriTess extends MeshInstance:
 		left = v2
 		freq = frequence
 		st = surface_tool
+		randomize ( )
 		
 	func calculate_vertices():
 		
