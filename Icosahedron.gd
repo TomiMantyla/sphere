@@ -36,7 +36,6 @@ func _ready():
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	#Top --Who says which vertex is on top?
-	st.add_color(Color.blue)
 	for i in range(1,6):
 		#st.add_vertex(vertices[0])
 		#st.add_vertex(vertices[i%5+1])
@@ -74,14 +73,17 @@ func _ready():
 		tri = TriTess.new(st, vertices[i%5+1], vertices[i%5+6], vertices[i+5], frequency)
 		st = tri.get_st()
 		
-	#st.generate_normals()
-	#mesh = st.commit()
-	
 	m=st.commit()
 	mdt.create_from_surface(m, 0)
-	for i in range(mdt.get_vertex_count()):
-		var vertex = mdt.get_vertex(i)
-		mdt.set_vertex(i, vertex.normalized()*radius)
+	var edge
+	var vertex	
+	for i in range(3*5):#mdt.get_vertex_count()):
+		#edge = mdt.get_vertex_edges(i)
+		vertex = mdt.get_vertex(i)
+		mdt.set_vertex(i, vertex.normalized()*radius*1.1)
+	#for i in range(mdt.get_vertex_count()):
+	#	var vertex = mdt.get_vertex(i)
+	#	mdt.set_vertex(i, vertex.normalized()*radius)
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -110,6 +112,7 @@ class TriTess extends MeshInstance:
 	func meshify():
 		#st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		#Ensimmäinen kolmio
+		#print("Tesselaatio")
 		st.add_color(Color.red)
 		st.add_normal(vertices[0][0])
 		st.add_vertex(vertices[0][0])
@@ -118,14 +121,21 @@ class TriTess extends MeshInstance:
 		st.add_normal(vertices[1][0])
 		st.add_vertex(vertices[1][0])
 		var f = freq+1
+		var c = 2
 		for i in range(1, freq):
 			for j in range(i+1):
 				#Ensin ylöspäin osoittavat kolmiot
+				#c+=1
 				st.add_color(colors[randi() % colors.size()])
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str(i*freq+j))
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
+				#c+=2
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j+1))
 				st.add_normal(vertices[i+1][j+1])
 				st.add_vertex(vertices[i+1][j+1])
+				#c-=1
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j))
 				st.add_normal(vertices[i+1][j])
 				st.add_vertex(vertices[i+1][j])
 				#Sitten alaspäin osoittavat kolmiot
@@ -172,9 +182,6 @@ class TriTess extends MeshInstance:
 				#print("    "+str(j))
 				vertices[i][j]=(top+i*t_down + j*t_right)
 		#print(vertices)
-		for i in range(f+1):
-			for j in range(i+1):
-				pass
 		meshify()
 	
 	#func _process(delta): 
