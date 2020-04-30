@@ -24,6 +24,7 @@ params_diffuse_mode = 1
 
 [sub_resource type="SpatialMaterial" id=5]
 vertex_color_use_as_albedo = true
+params_diffuse_mode = 1
 params_specular_mode = 1
 
 [node name="Spatial" type="Spatial"]
@@ -61,5 +62,5 @@ transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.045746
 light_energy = 0.31
 
 [node name="DirectionalLight2" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.0233155, -0.999728, 0, 0.999728, 0.0233155, 0, -5.79049, 1.55308 )
-light_energy = 0.31
+transform = Transform( 1, 0, 0, 0, 0.998769, 0.0495994, 0, -0.0495994, 0.998769, 0, -0.0580506, 7.3335 )
+light_energy = 0.15

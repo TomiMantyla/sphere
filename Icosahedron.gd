@@ -72,18 +72,29 @@ func _ready():
 #		st.add_vertex(vertices[i+5])
 		tri = TriTess.new(st, vertices[i%5+1], vertices[i%5+6], vertices[i+5], frequency)
 		st = tri.get_st()
-		
+	st.index()
 	m=st.commit()
+	var edges
+	var neighbours = []
+	var truncate = [0]
+	var no_truncate = []
 	mdt.create_from_surface(m, 0)
-	var edge
-	var vertex	
-	for i in range(3*5):#mdt.get_vertex_count()):
-		#edge = mdt.get_vertex_edges(i)
-		vertex = mdt.get_vertex(i)
-		mdt.set_vertex(i, vertex.normalized()*radius*1.1)
-	#for i in range(mdt.get_vertex_count()):
-	#	var vertex = mdt.get_vertex(i)
-	#	mdt.set_vertex(i, vertex.normalized()*radius)
+	for i in range(mdt.get_vertex_count()):
+		#var vertex = mdt.get_vertex(i)
+		edges = mdt.get_vertex_edges(i)
+		print("Vertex: "+str(i))
+		neighbours.append([])
+		for e in edges:
+			print(str(mdt.get_edge_vertex(e, 0))+" <-> "+str(mdt.get_edge_vertex(e, 1)))
+			if mdt.get_edge_vertex(e,0)!=i:
+				neighbours[i].append(mdt.get_edge_vertex(e, 0))
+			if mdt.get_edge_vertex(e,1)!=i:
+				neighbours[i].append(mdt.get_edge_vertex(e, 1))
+		print(neighbours[i])
+		if truncate.has(i):
+			no_truncate+=neighbours[i]
+			
+		#mdt.set_vertex(i, vertex.normalized()*radius)
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -126,7 +137,7 @@ class TriTess extends MeshInstance:
 			for j in range(i+1):
 				#Ensin ylöspäin osoittavat kolmiot
 				#c+=1
-				st.add_color(colors[randi() % colors.size()])
+				#st.add_color(colors[randi() % colors.size()])
 				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str(i*freq+j))
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
@@ -140,7 +151,7 @@ class TriTess extends MeshInstance:
 				st.add_vertex(vertices[i+1][j])
 				#Sitten alaspäin osoittavat kolmiot
 			for j in range(i):
-				st.add_color(colors[randi() % colors.size()])
+				#st.add_color(colors[randi() % colors.size()])
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
 				st.add_normal(vertices[i][j+1])
