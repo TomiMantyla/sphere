@@ -50,17 +50,25 @@ script = ExtResource( 3 )
 freq = 3
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4 )
+transform = Transform( 1, 0, 0, 0, 0.961059, 0.276342, 0, -0.276342, 0.961059, 0, 2.16877, 4 )
 
 [node name="Icosahedron" type="MeshInstance" parent="."]
 material_override = SubResource( 5 )
 script = ExtResource( 4 )
-frequency = 2
+frequency = 9
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0, 5.79813, 1.55308 )
+visible = false
 light_energy = 0.31
 
 [node name="DirectionalLight2" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.998769, 0.0495994, 0, -0.0495994, 0.998769, 0, -0.0580506, 7.3335 )
 light_energy = 0.15
+
+[node name="SpotLight" type="SpotLight" parent="."]
+transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0, 7.56678, 0 )
+visible = false
+light_color = Color( 0.945098, 1, 0.0117647, 1 )
+spot_range = 9.4
+spot_angle = 23.7

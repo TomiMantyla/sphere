@@ -7,11 +7,15 @@ const phi = (1+sqrt(5))/2
 
 var radius
 
+var full_circle = 0
+var color_index = 0
+var prev_i = 0
+
 var vertices = []
 var m
 var st = SurfaceTool.new()
 var mdt = MeshDataTool.new()
-
+var ManipulatorFile = preload("res://MeshManipulator.gd")
 
 func _ready():
 	
@@ -42,19 +46,6 @@ func _ready():
 		#st.add_vertex(vertices[i])
 		tri = TriTess.new(st, vertices[0], vertices[i%5+1], vertices[i], frequency)
 		st = tri.get_st()
-	
-	#st.add_vertex(vertices[0])
-	#st.add_vertex(vertices[5])
-	#st.add_vertex(vertices[1])
-	
-		
-	#Bottom
-#	for i in range(1, 6):
-#		st.add_vertex(vertices[11])
-#		st.add_vertex(vertices[i+5])
-#		st.add_vertex(vertices[i%5+6])
-		tri = TriTess.new(st, vertices[11], vertices[i+5], vertices[i%5+6], frequency)
-		st = tri.get_st()
 #
 #	#Side
 #	st.add_color(Color.red)
@@ -72,35 +63,80 @@ func _ready():
 #		st.add_vertex(vertices[i+5])
 		tri = TriTess.new(st, vertices[i%5+1], vertices[i%5+6], vertices[i+5], frequency)
 		st = tri.get_st()
+		#Bottom
+#	for i in range(1, 6):
+#		st.add_vertex(vertices[11])
+#		st.add_vertex(vertices[i+5])
+#		st.add_vertex(vertices[i%5+6])
+		tri = TriTess.new(st, vertices[11], vertices[i+5], vertices[i%5+6], frequency)
+		st = tri.get_st()
+	#st.generate_normals()
+	#st.generate_tangents()
 	st.index()
 	m=st.commit()
-	var edges
-	var neighbours = []
-	var truncate = [0]
-	var no_truncate = []
-	mdt.create_from_surface(m, 0)
+	mesh = m
+	
+	mdt.create_from_surface(m, 0)	
+	var mani = ManipulatorFile.MeshManipulator.new(m)
+#	for i in range(mdt.get_vertex_count()):
+#		print (mani.get_neighbours(i))
+		
+#	mdt.set_vertex_color(6, Color.blue)
+#	for i in range(mdt.get_vertex_count()):
+#		var n = mani.get_neighbours(i)
+#		if n.size() == 4:
+#			mdt.set_vertex_color(i, Color.blue)
+#			for v in n:
+#				mdt.set_vertex_color(v, Color.white)
+
+	var hops = mani.dijkstra(0)[0]
 	for i in range(mdt.get_vertex_count()):
-		#var vertex = mdt.get_vertex(i)
-		edges = mdt.get_vertex_edges(i)
-		print("Vertex: "+str(i))
-		neighbours.append([])
-		for e in edges:
-			print(str(mdt.get_edge_vertex(e, 0))+" <-> "+str(mdt.get_edge_vertex(e, 1)))
-			if mdt.get_edge_vertex(e,0)!=i:
-				neighbours[i].append(mdt.get_edge_vertex(e, 0))
-			if mdt.get_edge_vertex(e,1)!=i:
-				neighbours[i].append(mdt.get_edge_vertex(e, 1))
-		print(neighbours[i])
-		if truncate.has(i):
-			no_truncate+=neighbours[i]
-			
-		#mdt.set_vertex(i, vertex.normalized()*radius)
+		if hops[i]%2 == 0:
+			mdt.set_vertex_color(i, Color.blue)
+		else:
+			mdt.set_vertex_color(i, Color.white)
+		
+
+#	var edges
+#	var neighbours = []
+#	var truncate = [0]
+#	var no_truncate = []
+#	for i in range(mdt.get_vertex_count()):
+#		#var vertex = mdt.get_vertex(i)
+#		edges = mdt.get_vertex_edges(i)
+#		print("Vertex: "+str(i))
+#		neighbours.append([])
+#		for e in edges:
+#			print(str(mdt.get_edge_vertex(e, 0))+" <-> "+str(mdt.get_edge_vertex(e, 1)))
+#			if mdt.get_edge_vertex(e,0)!=i:
+#				neighbours[i].append(mdt.get_edge_vertex(e, 0))
+#			if mdt.get_edge_vertex(e,1)!=i:
+#				neighbours[i].append(mdt.get_edge_vertex(e, 1))
+#		print(neighbours[i])
+#		if truncate.has(i):
+#			no_truncate+=neighbours[i]
+#
+#		#mdt.set_vertex(i, vertex.normalized()*radius)
+#	#mdt.set_vertex_color(0, Color.blue)
+#	#mdt.set_vertex_color(1, Color.white)
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
+	#print(mani.dijkstra(0))
 	
 func _process(delta): 
+	
+#	if full_circle > TAU:
+#		mdt.set_vertex_color(prev_i, Color.yellow)
+#		mdt.set_vertex_color(color_index, Color.blue)
+#		prev_i = color_index
+#		color_index = (color_index+1)%12
+#		mdt.commit_to_surface(m)
+#		m.surface_remove(0)
+#		mesh = m
+#		full_circle = 0
 	rotate_y(delta)
+#	full_circle +=delta
 
 class TriTess extends MeshInstance:
 
@@ -194,7 +230,4 @@ class TriTess extends MeshInstance:
 				vertices[i][j]=(top+i*t_down + j*t_right)
 		#print(vertices)
 		meshify()
-	
-	#func _process(delta): 
-		#rotate_y(delta)
 	
