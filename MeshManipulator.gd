@@ -7,8 +7,6 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 	func _init(mesh0):
 		mmesh = mesh0
 		mdt.create_from_surface(mmesh, 0)
-		print(mdt.get_vertex_count())
-
 
 	func get_neighbours(index):
 		var edges = mdt.get_vertex_edges(index)

@@ -89,14 +89,15 @@ func _ready():
 #			for v in n:
 #				mdt.set_vertex_color(v, Color.white)
 
-	var hops = mani.dijkstra(0)[0]
-	for i in range(mdt.get_vertex_count()):
-		if hops[i]%2 == 0:
-			mdt.set_vertex_color(i, Color.blue)
-		else:
-			mdt.set_vertex_color(i, Color.white)
-		
-
+#	var hops = mani.dijkstra(0)[0]
+#	for i in range(mdt.get_vertex_count()):
+#		if hops[i]%2 == 0:
+#			mdt.set_vertex_color(i, Color.blue)
+#		else:
+#			mdt.set_vertex_color(i, Color.white)
+	
+	hexify(0)
+	
 #	var edges
 #	var neighbours = []
 #	var truncate = [0]
@@ -123,11 +124,31 @@ func _ready():
 	mdt.commit_to_surface(m)
 	mesh = m
 	#print(mani.dijkstra(0))
+
+func hexify(start_index):
+	var mm = ManipulatorFile.MeshManipulator.new(m)
+	var neighbors = mm.get_neighbours(start_index)
+	var gn = 0
+	if mdt.get_vertex_color(start_index) == Color.black || mdt.get_vertex_color(start_index) == Color.white:
+		return
+	for n in neighbors:
+		if mdt.get_vertex_color(n) == Color.white:
+			gn+=1
+	if gn!=1:
+		mdt.set_vertex_color(start_index, Color.black)
+		mdt.set_vertex(start_index, mdt.get_vertex(start_index)*0.75)
+		for n in neighbors:
+			mdt.set_vertex_color(n, Color.white)
+		for n in neighbors:
+			for nn in mm.get_neighbours(n):
+				hexify(nn)
 	
+
+
 func _process(delta): 
 	
 #	if full_circle > TAU:
-#		mdt.set_vertex_color(prev_i, Color.yellow)
+#		mdt.set_vertex_color(prev_i, Color.white)
 #		mdt.set_vertex_color(color_index, Color.blue)
 #		prev_i = color_index
 #		color_index = (color_index+1)%12
@@ -152,7 +173,7 @@ class TriTess extends MeshInstance:
 	var vertices = []
 	var st
 	
-	var colors = [Color.red, Color.blue, Color.yellow, Color.green, Color.magenta, Color.cyan]
+	var colors = [Color.red, Color.blue, Color.white, Color.black, Color.magenta, Color.cyan]
 	
 	#const hcoff = 0.86602540378
 	
