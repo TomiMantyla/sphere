@@ -55,7 +55,7 @@ transform = Transform( 1, 0, 0, 0, 0.961059, 0.276342, 0, -0.276342, 0.961059, 0
 [node name="Icosahedron" type="MeshInstance" parent="."]
 material_override = SubResource( 5 )
 script = ExtResource( 4 )
-frequency = 2
+frequency = 5
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0, 5.79813, 1.55308 )

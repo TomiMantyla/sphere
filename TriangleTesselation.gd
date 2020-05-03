@@ -75,6 +75,3 @@ func _ready():
 		for j in range(i+1):
 			pass
 	meshify()
-
-#func _process(delta): 
-	#rotate_y(delta)

@@ -1,7 +1,7 @@
 class MeshManipulator: #What should it extend? MeshDataTool?
 
-	var mmesh
-	var mdt = MeshDataTool.new()
+	var mmesh #Ehkä turha
+	var mdt = MeshDataTool.new() #Voitaisiin ehkä välittää viittauksena, eikä luoda uutta
 
 
 	func _init(mesh0):
@@ -47,8 +47,37 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 					dist[v] = alt
 					prev[v] = u
 		return([dist, prev])
-				
+	
+	func copy_vertex(v):
+		pass
+	
+	
+	func combine_vertices(v, u):
+		pass
 		
+	func proximity_indexer(separation): #Combines close by vertexes and reindexes mesh
+		var arrays = mmesh.surface_get_arrays(0)
+		var vertices = arrays[ArrayMesh.ARRAY_VERTEX]
+		var indices = arrays[ArrayMesh.ARRAY_INDEX]
+		#var colors = arrays[ArrayMesh.ARRAY_COLOR]
+		var vcount = vertices.size()
+		var ss = separation*separation
 		
-	func _ready():
-		pass # Replace with function body.
+		for v in range(vcount):
+			for u in range (v+1, vcount):
+				if (vertices[v]-vertices[u]).length_squared()<ss:
+					vertices[u] = vertices[v]
+					#print(str(v)+ ", " +str(u))
+					if indices!=null:
+						for i in range(indices.size()):
+							if indices[i] == u:
+								indices[i] = v
+								#print(i)
+		var arr_mesh = ArrayMesh.new()
+		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
+		arrays[ArrayMesh.ARRAY_INDEX] = indices
+		#arrays[ArrayMesh.ARRAY_COLOR] = null
+		arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		mmesh = arr_mesh
+		mdt.create_from_surface(mmesh, 0)
+		return mmesh

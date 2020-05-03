@@ -72,11 +72,12 @@ func _ready():
 		st = tri.get_st()
 	#st.generate_normals()
 	#st.generate_tangents()
+	
 	st.index()
 	m=st.commit()
 	mesh = m
 	
-	mdt.create_from_surface(m, 0)	
+		
 	var mani = ManipulatorFile.MeshManipulator.new(m)
 #	for i in range(mdt.get_vertex_count()):
 #		print (mani.get_neighbours(i))
@@ -89,6 +90,13 @@ func _ready():
 #			for v in n:
 #				mdt.set_vertex_color(v, Color.white)
 
+	
+	
+	
+	m = mani.proximity_indexer(0.001)
+	mdt.create_from_surface(m, 0)
+	hexify(0)
+	
 #	var hops = mani.dijkstra(0)[0]
 #	for i in range(mdt.get_vertex_count()):
 #		if hops[i]%2 == 0:
@@ -96,7 +104,6 @@ func _ready():
 #		else:
 #			mdt.set_vertex_color(i, Color.white)
 	
-	hexify(0)
 	
 #	var edges
 #	var neighbours = []
@@ -136,7 +143,7 @@ func hexify(start_index):
 			gn+=1
 	if gn!=1:
 		mdt.set_vertex_color(start_index, Color.black)
-		mdt.set_vertex(start_index, mdt.get_vertex(start_index)*0.75)
+		#mdt.set_vertex(start_index, mdt.get_vertex(start_index)*1.1)
 		for n in neighbors:
 			mdt.set_vertex_color(n, Color.white)
 		for n in neighbors:
@@ -161,8 +168,6 @@ func _process(delta):
 
 class TriTess extends MeshInstance:
 
-	# Member variables
-	#export var side_length = 2.0
 	var freq = 1
 	
 	var top 
@@ -175,12 +180,8 @@ class TriTess extends MeshInstance:
 	
 	var colors = [Color.red, Color.blue, Color.white, Color.black, Color.magenta, Color.cyan]
 	
-	#const hcoff = 0.86602540378
-	
 	func meshify():
-		#st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		#Ensimmäinen kolmio
-		#print("Tesselaatio")
+
 		st.add_color(Color.red)
 		st.add_normal(vertices[0][0])
 		st.add_vertex(vertices[0][0])
