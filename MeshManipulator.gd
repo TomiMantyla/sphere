@@ -58,25 +58,70 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 	func proximity_indexer(separation): #Combines close by vertexes and reindexes mesh
 		var arrays = mmesh.surface_get_arrays(0)
 		var vertices = arrays[ArrayMesh.ARRAY_VERTEX]
+		var vdup = []
+		vdup.resize(vertices.size())
 		var indices = arrays[ArrayMesh.ARRAY_INDEX]
-		#var colors = arrays[ArrayMesh.ARRAY_COLOR]
+		var colors = arrays[ArrayMesh.ARRAY_COLOR]
 		var vcount = vertices.size()
 		var ss = separation*separation
 		
-		for v in range(vcount):
-			for u in range (v+1, vcount):
+		var v = 0
+		while v<vertices.size():
+			var u = v+1
+			while u<vertices.size():
+			#for u in range (v+1, vertices.size()):
 				if (vertices[v]-vertices[u]).length_squared()<ss:
 					vertices[u] = vertices[v]
+#					vertices.remove(u)
+#					for i in range(indices.size()):
+#						if indices[i]>u:
+#							indices[i]-=1
+							#print(indices[i])
+					#vcount-=1
 					#print(str(v)+ ", " +str(u))
 					if indices!=null:
-						for i in range(indices.size()):
+						var i = 0
+						while i<indices.size():
+						#for i in range(indices.size()):
 							if indices[i] == u:
-								indices[i] = v
-								#print(i)
+								var tri_i = i-i%3
+								if indices[tri_i] == v || indices[tri_i+1] == v || indices[tri_i+2] == v:
+									print(tri_i)
+									indices.remove(tri_i)
+									indices.remove(tri_i+1)
+									indices.remove(tri_i+2)
+									i = tri_i-1
+								else:
+									indices[i] = v
+							i+=1
+							#print(i)
+#					u-=1
+				u+=1
+			v+=1
+		for v in range(vertices.size()-1, 0, -1):
+			var orphan = true
+			for i in range(indices.size()):
+				if indices[i] == v:
+					orphan = false
+					break
+			if orphan:
+				vertices.remove(v)
+				colors.remove(v)
+				#print(v)
+				for i in range(indices.size()):
+					if indices[i]>=v:
+						indices[i]-=1
+		
+		
+		#print("ulos!")
+		#print(vertices)
+		#print(indices.size())
 		var arr_mesh = ArrayMesh.new()
+		arrays = []
+		arrays.resize(ArrayMesh.ARRAY_MAX)
 		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
-		#arrays[ArrayMesh.ARRAY_COLOR] = null
+		arrays[ArrayMesh.ARRAY_COLOR] = colors
 		arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		mmesh = arr_mesh
 		mdt.create_from_surface(mmesh, 0)

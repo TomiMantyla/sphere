@@ -79,8 +79,7 @@ func _ready():
 	
 		
 	var mani = ManipulatorFile.MeshManipulator.new(m)
-#	for i in range(mdt.get_vertex_count()):
-#		print (mani.get_neighbours(i))
+#	
 		
 #	mdt.set_vertex_color(6, Color.blue)
 #	for i in range(mdt.get_vertex_count()):
@@ -93,7 +92,7 @@ func _ready():
 	
 	
 	
-	m = mani.proximity_indexer(0.001)
+	m = mani.proximity_indexer(0.0001)
 	mdt.create_from_surface(m, 0)
 	hexify(0)
 	
@@ -131,6 +130,11 @@ func _ready():
 	mdt.commit_to_surface(m)
 	mesh = m
 	#print(mani.dijkstra(0))
+#	for i in range(mdt.get_vertex_count()):
+#		if mani.get_neighbours(i).size() == 0:
+#			print(i)
+#		else:
+#			print (mani.get_neighbours(i))
 
 func hexify(start_index):
 	var mm = ManipulatorFile.MeshManipulator.new(m)
