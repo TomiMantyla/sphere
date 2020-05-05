@@ -24,7 +24,7 @@ params_diffuse_mode = 1
 
 [sub_resource type="SpatialMaterial" id=5]
 vertex_color_use_as_albedo = true
-params_diffuse_mode = 1
+params_diffuse_mode = 2
 params_specular_mode = 2
 
 [node name="Spatial" type="Spatial"]
@@ -50,7 +50,7 @@ script = ExtResource( 3 )
 freq = 3
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.821408, 0.570341, 0, -0.570341, 0.821408, 0, 2.67617, 4 )
+transform = Transform( 1, 0, 0, 0, 0.941618, 0.336684, 0, -0.336684, 0.941618, 0, 1.4, 3.7 )
 
 [node name="Icosahedron" type="MeshInstance" parent="."]
 material_override = SubResource( 5 )
@@ -58,17 +58,15 @@ script = ExtResource( 4 )
 frequency = 3
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0.176224, 7.30372, 1.13732 )
+transform = Transform( 1, 0, 0, 0, -0.0457466, 0.998953, 0, -0.998953, -0.0457466, 0.176224, 8.65616, 5.03377 )
 light_energy = 0.5
 
 [node name="DirectionalLight2" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.998769, 0.0495994, 0, -0.0495994, 0.998769, 0, -0.0580506, 7.3335 )
+transform = Transform( 1, 0, 0, 0, 0.998769, 0.0495994, 0, -0.0495994, 0.998769, 0, 0.519212, 7.3335 )
 visible = false
 light_energy = 0.15
 
 [node name="SpotLight" type="SpotLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.0576511, 0.998337, 0, -0.998337, 0.0576511, 2.19365, 7.07816, 0.194168 )
-light_energy = 2.55
+transform = Transform( 1, 0, 0, 0, 0.45882, 0.888529, 0, -0.888529, 0.45882, 0.780907, 5.65641, 5.19997 )
 spot_range = 11.2
-spot_attenuation = 1.0
-spot_angle = 23.7
+spot_angle = 14.0

@@ -84,7 +84,6 @@ func _ready():
 	
 		
 	var mani = ManipulatorFile.MeshManipulator.new(m)
-#	
 		
 #	mdt.set_vertex_color(6, Color.blue)
 #	for i in range(mdt.get_vertex_count()):
@@ -116,6 +115,12 @@ func _ready():
 	hexify(0)
 	hexify_far(0)
 	
+	m.surface_remove(0)
+	mdt.commit_to_surface(m)
+	m = mani.deindex()
+	mdt.clear()
+	mdt.create_from_surface(m, 0)
+	hexify_color()
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -156,6 +161,16 @@ func hexify_far(start_index, visited = []):
 		if !visited.has(v):
 			hexify_far(v, visited)
 
+func hexify_color():
+	var mm = ManipulatorFile.MeshManipulator.new(m)
+	var visited = []
+	var faces
+	for f in mdt.get_face_count():
+		if mdt.get_vertex_color(mdt.get_face_vertex(f, 0)) == Color.black ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) == Color.black ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) == Color.black:
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 0), Color.black)
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.black)
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.black)
+		
 func _process(delta): 
 	
 #	if full_circle > TAU:
@@ -167,7 +182,8 @@ func _process(delta):
 #		m.surface_remove(0)
 #		mesh = m
 #		full_circle = 0
-	rotate_y(delta)
+	rotate_y(delta*0.5)
+	#rotate_x(delta*0.3)
 #	full_circle +=delta
 
 class TriTess extends MeshInstance:

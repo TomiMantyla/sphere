@@ -101,12 +101,10 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 	func proximity_indexer(separation): #Combines close by vertexes and reindexes mesh
 		var arrays = mmesh.surface_get_arrays(0)
 		var vertices = arrays[ArrayMesh.ARRAY_VERTEX]
-		var vdup = []
-		vdup.resize(vertices.size())
 		var indices = arrays[ArrayMesh.ARRAY_INDEX]
 		var normals = arrays[ArrayMesh.ARRAY_NORMAL]
 		var colors = arrays[ArrayMesh.ARRAY_COLOR]
-		var vcount = vertices.size()
+		#var vcount = vertices.size()
 		var ss = separation*separation
 		
 		var v = 0
@@ -161,14 +159,43 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		#print("ulos!")
 		#print(vertices)
 		#print(indices.size())
-		var arr_mesh = ArrayMesh.new()
-		arrays = []
+	
+		arrays.clear()
 		arrays.resize(ArrayMesh.ARRAY_MAX)
 		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 		arrays[ArrayMesh.ARRAY_NORMAL] = normals
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
 		arrays[ArrayMesh.ARRAY_COLOR] = colors
-		arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		mmesh = arr_mesh
+		#var arr_mesh = ArrayMesh.new()
+		mmesh.surface_remove(0)
+		mmesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		#mmesh = arr_mesh
 		mdt.create_from_surface(mmesh, 0)
 		return mmesh
+
+	func deindex():
+		var arrays = mmesh.surface_get_arrays(0)
+		var vertices = arrays[ArrayMesh.ARRAY_VERTEX]
+		var indices = arrays[ArrayMesh.ARRAY_INDEX]
+		var normals = arrays[ArrayMesh.ARRAY_NORMAL]
+		var colors = arrays[ArrayMesh.ARRAY_COLOR]
+		var niver = PoolVector3Array()
+		var ninor = PoolVector3Array()
+		var nicol = PoolColorArray()
+		niver.resize(indices.size())
+		ninor.resize(indices.size())
+		nicol.resize(indices.size())
+		for i in range(indices.size()):
+			niver[i] = vertices[indices[i]]
+			ninor[i] = normals[indices[i]]
+			nicol[i] = colors[indices[i]]
+		arrays.clear()
+		arrays.resize(ArrayMesh.ARRAY_MAX)
+		arrays[ArrayMesh.ARRAY_VERTEX] = niver
+		arrays[ArrayMesh.ARRAY_NORMAL] = ninor
+		arrays[ArrayMesh.ARRAY_INDEX] = null
+		arrays[ArrayMesh.ARRAY_COLOR] = nicol
+		mmesh.surface_remove(0)
+		mmesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		mdt.create_from_surface(mmesh, 0)
+		return(mmesh)
