@@ -78,7 +78,9 @@ func _ready():
 	
 	st.index()
 	m=st.commit()
+	#print(m.surface_get_arrays(0)[ArrayMesh.ARRAY_NORMAL])
 	mesh = m
+	
 	
 		
 	var mani = ManipulatorFile.MeshManipulator.new(m)
@@ -97,7 +99,7 @@ func _ready():
 	
 	m = mani.proximity_indexer(0.0001)
 	mdt.create_from_surface(m, 0)
-	hexify2(0)
+	
 	
 #	var hops = mani.dijkstra(0)[0]
 #	for i in range(mdt.get_vertex_count()):
@@ -110,7 +112,10 @@ func _ready():
 	for i in range(mdt.get_vertex_count()):
 		var vertex = mdt.get_vertex(i)
 		mdt.set_vertex(i, vertex.normalized()*radius)
-
+	
+	hexify(0)
+	hexify_far(0)
+	
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -124,33 +129,32 @@ func _ready():
 #	for i in range(mdt.get_vertex_count()):
 #		print(mani.get_far_neighbours(i))
 	print("Mesh created in "+ str((OS.get_ticks_msec()-start_time)/1000.0)+" seconds.")
-	
-func hexify(start_index):
+
+
+func hexify(start_index, visited = []):
+	visited.append(start_index)
 	var mm = ManipulatorFile.MeshManipulator.new(m)
-	var neighbors = mm.get_neighbours(start_index)
-	var gn = 0
-	if mdt.get_vertex_color(start_index) == Color.black || mdt.get_vertex_color(start_index) == Color.white:
-		return
-	for n in neighbors:
-		if mdt.get_vertex_color(n) == Color.white:
-			gn+=1
-	if gn!=1:
-		mdt.set_vertex_color(start_index, Color.black)
-		#mdt.set_vertex(start_index, mdt.get_vertex(start_index)*1.1)
-		for n in neighbors:
-			mdt.set_vertex_color(n, Color.white)
-		for n in neighbors:
-			for nn in mm.get_neighbours(n):
-				hexify(nn)
-	
-func hexify2(start_index, visited = []):
+	var fn = mm.get_far_neighbours(start_index)
+	#mdt.set_vertex_color(start_index, Color.black)
+	var pv = mdt.get_vertex(mm.get_neighbours(start_index)[0])
+	var sv = mdt.get_vertex(start_index)
+	var mv = pv.dot(sv)/sv.dot(sv)*sv
+	#print(((pv.dot(sv)/sv.dot(sv))*sv).length())
+	#print(sv.length())
+	mdt.set_vertex(start_index, mv)
+	mdt.set_vertex_normal(start_index, mv)
+	for v in fn:
+		if !visited.has(v):
+			hexify(v, visited)
+
+func hexify_far(start_index, visited = []):
 	visited.append(start_index)
 	mdt.set_vertex_color(start_index, Color.black)
 	var mm = ManipulatorFile.MeshManipulator.new(m)
 	var fn = mm.get_far_far_neighbours(start_index)
 	for v in fn:
 		if !visited.has(v):
-			hexify2(v, visited)
+			hexify_far(v, visited)
 
 func _process(delta): 
 	
