@@ -17,8 +17,11 @@ var st = SurfaceTool.new()
 var mdt = MeshDataTool.new()
 var ManipulatorFile = preload("res://MeshManipulator.gd")
 
+var start_time
+
 func _ready():
 	
+	start_time = OS.get_ticks_msec()
 	var tri
 	
 	vertices.resize(12)
@@ -94,7 +97,7 @@ func _ready():
 	
 	m = mani.proximity_indexer(0.0001)
 	mdt.create_from_surface(m, 0)
-	hexify(0)
+	hexify2(0)
 	
 #	var hops = mani.dijkstra(0)[0]
 #	for i in range(mdt.get_vertex_count()):
@@ -103,29 +106,11 @@ func _ready():
 #		else:
 #			mdt.set_vertex_color(i, Color.white)
 	
-	
-#	var edges
-#	var neighbours = []
-#	var truncate = [0]
-#	var no_truncate = []
-#	for i in range(mdt.get_vertex_count()):
-#		#var vertex = mdt.get_vertex(i)
-#		edges = mdt.get_vertex_edges(i)
-#		print("Vertex: "+str(i))
-#		neighbours.append([])
-#		for e in edges:
-#			print(str(mdt.get_edge_vertex(e, 0))+" <-> "+str(mdt.get_edge_vertex(e, 1)))
-#			if mdt.get_edge_vertex(e,0)!=i:
-#				neighbours[i].append(mdt.get_edge_vertex(e, 0))
-#			if mdt.get_edge_vertex(e,1)!=i:
-#				neighbours[i].append(mdt.get_edge_vertex(e, 1))
-#		print(neighbours[i])
-#		if truncate.has(i):
-#			no_truncate+=neighbours[i]
-#
-#		#mdt.set_vertex(i, vertex.normalized()*radius)
-#	#mdt.set_vertex_color(0, Color.blue)
-#	#mdt.set_vertex_color(1, Color.white)
+
+	for i in range(mdt.get_vertex_count()):
+		var vertex = mdt.get_vertex(i)
+		mdt.set_vertex(i, vertex.normalized()*radius)
+
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -135,7 +120,11 @@ func _ready():
 #			print(i)
 #		else:
 #			print (mani.get_neighbours(i))
-
+	#print(mani.get_neighbours(0))
+#	for i in range(mdt.get_vertex_count()):
+#		print(mani.get_far_neighbours(i))
+	print("Mesh created in "+ str((OS.get_ticks_msec()-start_time)/1000.0)+" seconds.")
+	
 func hexify(start_index):
 	var mm = ManipulatorFile.MeshManipulator.new(m)
 	var neighbors = mm.get_neighbours(start_index)
@@ -154,7 +143,14 @@ func hexify(start_index):
 			for nn in mm.get_neighbours(n):
 				hexify(nn)
 	
-
+func hexify2(start_index, visited = []):
+	visited.append(start_index)
+	mdt.set_vertex_color(start_index, Color.black)
+	var mm = ManipulatorFile.MeshManipulator.new(m)
+	var fn = mm.get_far_far_neighbours(start_index)
+	for v in fn:
+		if !visited.has(v):
+			hexify2(v, visited)
 
 func _process(delta): 
 	
@@ -186,7 +182,7 @@ class TriTess extends MeshInstance:
 	
 	func meshify():
 
-		st.add_color(Color.red)
+		st.add_color(Color.white)
 		st.add_normal(vertices[0][0])
 		st.add_vertex(vertices[0][0])
 		st.add_normal(vertices[1][1])
@@ -222,9 +218,49 @@ class TriTess extends MeshInstance:
 				st.add_vertex(vertices[i+1][j+1])
 		#st.generate_normals()
 	
+	func meshify_flat():
+		
+		#Use average normal
+		var normal = (top+right+left)/3
+		
+		
+		st.add_color(Color.white)
+#		st.add_normal(vertices[0][0])
+		st.add_normal(normal)
+		st.add_vertex(vertices[0][0])
+#		st.add_normal(vertices[1][1])
+		st.add_vertex(vertices[1][1])
+#		st.add_normal(vertices[1][0])
+		st.add_vertex(vertices[1][0])
+		var f = freq+1
+		var c = 2
+		for i in range(1, freq):
+			#Ensin ylöspäin osoittavat kolmiot
+			for j in range(i+1):
+				#c+=1
+				#st.add_color(colors[randi() % colors.size()])
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str(i*freq+j))
+				st.add_vertex(vertices[i][j])
+				#c+=2
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j+1))
+				st.add_vertex(vertices[i+1][j+1])
+				#c-=1
+				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j))
+				st.add_vertex(vertices[i+1][j])
+			#Sitten alaspäin osoittavat kolmiot
+			for j in range(i):
+				#st.add_color(colors[randi() % colors.size()])
+#				st.add_normal(vertices[i][j])
+				st.add_vertex(vertices[i][j])
+#				st.add_normal(vertices[i][j+1])
+				st.add_vertex(vertices[i][j+1])
+#				st.add_normal(vertices[i+1][j+1])
+				st.add_vertex(vertices[i+1][j+1])
+	
 	func get_st():
 		calculate_vertices()
 		return(st)
+
 	
 	func _init(surface_tool, v0, v1, v2, frequence=1):
 		top = v0

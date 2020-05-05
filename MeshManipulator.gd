@@ -17,7 +17,50 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 			if mdt.get_edge_vertex(e,1)!=index:
 				vertices.append(mdt.get_edge_vertex(e, 1))
 		return vertices
-
+	
+	func get_far_neighbours(index):
+		var neigh=get_neighbours(index)
+		var nneig = []
+		for n in neigh:
+			nneig += get_neighbours(n)
+		neigh.append(index)
+		var nni = 0
+		while nni < nneig.size():
+			if neigh.has(nneig[nni]):
+				nneig.remove(nni)
+			else:
+				nni+=1
+		nni = 0
+		var values = []
+		for nn in nneig:
+			if !values.has(nn):
+				values.append(nn)
+		for v in values:
+			nneig.erase(v)
+		return nneig
+	
+	func get_far_far_neighbours(index):
+		var neigh=get_far_neighbours(index)
+		var nneig = []
+		for n in neigh:
+			nneig += get_far_neighbours(n)
+		neigh.append(index)
+		var nni = 0
+		while nni < nneig.size():
+			if neigh.has(nneig[nni]):
+				nneig.remove(nni)
+			else:
+				nni+=1
+		nni = 0
+		var values = []
+		for nn in nneig:
+			if !values.has(nn):
+				values.append(nn)
+		for v in values:
+			nneig.erase(v)
+		return nneig
+	
+	
 	func dijkstra(start_index):
 		var vcount = mdt.get_vertex_count()
 		var dist = []
@@ -61,6 +104,7 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		var vdup = []
 		vdup.resize(vertices.size())
 		var indices = arrays[ArrayMesh.ARRAY_INDEX]
+		var normals = arrays[ArrayMesh.ARRAY_NORMAL]
 		var colors = arrays[ArrayMesh.ARRAY_COLOR]
 		var vcount = vertices.size()
 		var ss = separation*separation
@@ -106,6 +150,7 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 					break
 			if orphan:
 				vertices.remove(v)
+				normals.remove(v)
 				colors.remove(v)
 				#print(v)
 				for i in range(indices.size()):
@@ -120,6 +165,7 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		arrays = []
 		arrays.resize(ArrayMesh.ARRAY_MAX)
 		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
+		arrays[ArrayMesh.ARRAY_NORMAL] = normals
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
 		arrays[ArrayMesh.ARRAY_COLOR] = colors
 		arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
