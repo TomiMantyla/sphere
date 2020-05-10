@@ -120,6 +120,7 @@ func _ready():
 	m = mani.deindex()
 	mdt.clear()
 	mdt.create_from_surface(m, 0)
+	hexify_flatten()
 	hexify_color()
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
@@ -147,7 +148,8 @@ func hexify(start_index, visited = []):
 	#print(((pv.dot(sv)/sv.dot(sv))*sv).length())
 	#print(sv.length())
 	mdt.set_vertex(start_index, mv)
-	mdt.set_vertex_normal(start_index, mv)
+	#mdt.set_vertex_normal(start_index, mv)
+	#mdt.set_vertex_color(start_index, Color.red)
 	for v in fn:
 		if !visited.has(v):
 			hexify(v, visited)
@@ -163,13 +165,27 @@ func hexify_far(start_index, visited = []):
 
 func hexify_color():
 	var mm = ManipulatorFile.MeshManipulator.new(m)
-	var visited = []
 	var faces
 	for f in mdt.get_face_count():
 		if mdt.get_vertex_color(mdt.get_face_vertex(f, 0)) == Color.black ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) == Color.black ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) == Color.black:
 			mdt.set_vertex_color(mdt.get_face_vertex(f, 0), Color.black)
 			mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.black)
 			mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.black)
+
+func hexify_flatten(): #Tehoton, lasketaan turhaan moneen kertaan
+	var mm = ManipulatorFile.MeshManipulator.new(m)
+	var faces
+	for f in mdt.get_face_count():
+		if true: #mdt.get_vertex_color(mdt.get_face_vertex(f, 0)) == Color.red ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) == Color.red ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) == Color.red:
+			var b = mdt.get_vertex(mdt.get_face_vertex(f, 1) - mdt.get_face_vertex(f, 0))
+			var a = mdt.get_vertex(mdt.get_face_vertex(f, 2) - mdt.get_face_vertex(f, 0))
+			#mdt.set_vertex_color(mdt.get_face_vertex(f, 0), Color.white)
+			#mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.white)
+			#mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.white)
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 0), a.cross(b))
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 1), a.cross(b))
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 2), a.cross(b))
+
 		
 func _process(delta): 
 	
