@@ -113,7 +113,7 @@ func _ready():
 		mdt.set_vertex(i, vertex.normalized()*radius)
 	
 	hexify(0)
-	hexify_far(0)
+	#hexify_far(0)
 	
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
@@ -121,7 +121,7 @@ func _ready():
 	mdt.clear()
 	mdt.create_from_surface(m, 0)
 	hexify_flatten()
-	hexify_color()
+	#hexify_color()
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
@@ -148,8 +148,8 @@ func hexify(start_index, visited = []):
 	#print(((pv.dot(sv)/sv.dot(sv))*sv).length())
 	#print(sv.length())
 	mdt.set_vertex(start_index, mv)
-	#mdt.set_vertex_normal(start_index, mv)
-	#mdt.set_vertex_color(start_index, Color.red)
+	mdt.set_vertex_normal(start_index, mv)
+	mdt.set_vertex_color(start_index, Color.whitesmoke)
 	for v in fn:
 		if !visited.has(v):
 			hexify(v, visited)
@@ -174,19 +174,24 @@ func hexify_color():
 
 func hexify_flatten(): #Tehoton, lasketaan turhaan moneen kertaan
 	var mm = ManipulatorFile.MeshManipulator.new(m)
-	var faces
-	for f in mdt.get_face_count():
-		if true: #mdt.get_vertex_color(mdt.get_face_vertex(f, 0)) == Color.red ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) == Color.red ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) == Color.red:
-			var b = mdt.get_vertex(mdt.get_face_vertex(f, 1) - mdt.get_face_vertex(f, 0))
-			var a = mdt.get_vertex(mdt.get_face_vertex(f, 2) - mdt.get_face_vertex(f, 0))
-			#mdt.set_vertex_color(mdt.get_face_vertex(f, 0), Color.white)
-			#mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.white)
-			#mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.white)
-			mdt.set_vertex_normal(mdt.get_face_vertex(f, 0), a.cross(b))
-			mdt.set_vertex_normal(mdt.get_face_vertex(f, 1), a.cross(b))
-			mdt.set_vertex_normal(mdt.get_face_vertex(f, 2), a.cross(b))
+	var normal
+	print(mdt.get_face_count())
+	for f in mdt.get_face_count():	
+		if mdt.get_vertex_color(mdt.get_face_vertex(f, 0)) != Color.white:#  mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) == Color.red ||  mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) == Color.red:
+			normal = mdt.get_vertex_normal(mdt.get_face_vertex(f, 0))
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 0), Color.white)
+		elif mdt.get_vertex_color(mdt.get_face_vertex(f, 1)) != Color.white:
+			normal = mdt.get_vertex_normal(mdt.get_face_vertex(f, 1))
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.white)
+		elif mdt.get_vertex_color(mdt.get_face_vertex(f, 2)) != Color.white:
+			normal = mdt.get_vertex_normal(mdt.get_face_vertex(f, 2))
+			mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.white)
+		if normal!=null:
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 0), normal)
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 1), normal)
+			mdt.set_vertex_normal(mdt.get_face_vertex(f, 2), normal)
+			normal = null
 
-		
 func _process(delta): 
 	
 #	if full_circle > TAU:
