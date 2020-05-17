@@ -113,7 +113,7 @@ func _ready():
 		mdt.set_vertex(i, vertex.normalized()*radius)
 	
 	hexify(0)
-	#hexify_far(0)
+	hexify_far(0)
 	
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
@@ -193,24 +193,14 @@ func hexify_flatten(): #Tehoton, lasketaan turhaan moneen kertaan
 			normal = null
 
 func _process(delta): 
-	
-#	if full_circle > TAU:
-#		mdt.set_vertex_color(prev_i, Color.white)
-#		mdt.set_vertex_color(color_index, Color.blue)
-#		prev_i = color_index
-#		color_index = (color_index+1)%12
-#		mdt.commit_to_surface(m)
-#		m.surface_remove(0)
-#		mesh = m
-#		full_circle = 0
 	rotate_y(delta*0.5)
-	#rotate_x(delta*0.3)
-#	full_circle +=delta
 
-class TriTess extends MeshInstance:
+class TriTess extends MeshInstance: #For creating triangular tessselations of triangles
+#Creates unindex mesh!
 
-	var freq = 1
+	var freq = 1 #Frequency of tesselation
 	
+	#Vectors that define tri that will be tesselated
 	var top 
 	var right
 	var left 
@@ -218,119 +208,63 @@ class TriTess extends MeshInstance:
 	var tri_mesh
 	var vertices = []
 	var st
-	
-	var colors = [Color.red, Color.blue, Color.white, Color.black, Color.magenta, Color.cyan]
-	
-	func meshify():
 
+	func _init(surface_tool, v0, v1, v2, frequence=1): #Create new TriTess
+	#suface_tool is where tesselation is added.
+	#v0, v1, v2 vectors of tri being tesselated, clockwise order
+	#frequency is frequency of tesselation.
+		top = v0
+		right = v1
+		left = v2
+		freq = frequence
+		st = surface_tool
+	
+	func tesselate(): #Tesselates given tri in init.
+		var f = freq+1
+		
+		#Unit vectors of tesselation
+		var t_down = (left - top)/freq
+		var t_right = (right - left)/freq	
+		
+		#Create table for tesselation vectors
+		vertices.resize(f) 
+		for i in range(f):
+			vertices[i] = []
+			vertices[i].resize(i+1)
+		
+		#Calculate vertices for tris of tesselation
+		for i in range(f):
+			for j in range(i+1):
+				vertices[i][j]=(top+i*t_down + j*t_right)
+		
+		#Assign vertices to each tri of tesselation. 
 		st.add_color(Color.white)
+		#Top tri first, so that for loop below looks cleaner
+		#That's because there is one row more tris pointing up than down.
 		st.add_normal(vertices[0][0])
 		st.add_vertex(vertices[0][0])
 		st.add_normal(vertices[1][1])
 		st.add_vertex(vertices[1][1])
 		st.add_normal(vertices[1][0])
 		st.add_vertex(vertices[1][0])
-		var f = freq+1
-		var c = 2
 		for i in range(1, freq):
+			#Tri's pointing up
 			for j in range(i+1):
-				#Ensin ylöspäin osoittavat kolmiot
-				#c+=1
-				#st.add_color(colors[randi() % colors.size()])
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str(i*freq+j))
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
-				#c+=2
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j+1))
 				st.add_normal(vertices[i+1][j+1])
 				st.add_vertex(vertices[i+1][j+1])
-				#c-=1
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j))
 				st.add_normal(vertices[i+1][j])
 				st.add_vertex(vertices[i+1][j])
-				#Sitten alaspäin osoittavat kolmiot
+			#Tri's pointing down
 			for j in range(i):
-				#st.add_color(colors[randi() % colors.size()])
 				st.add_normal(vertices[i][j])
 				st.add_vertex(vertices[i][j])
 				st.add_normal(vertices[i][j+1])
 				st.add_vertex(vertices[i][j+1])
 				st.add_normal(vertices[i+1][j+1])
 				st.add_vertex(vertices[i+1][j+1])
-		#st.generate_normals()
-	
-	func meshify_flat():
-		
-		#Use average normal
-		var normal = (top+right+left)/3
-		
-		
-		st.add_color(Color.white)
-#		st.add_normal(vertices[0][0])
-		st.add_normal(normal)
-		st.add_vertex(vertices[0][0])
-#		st.add_normal(vertices[1][1])
-		st.add_vertex(vertices[1][1])
-#		st.add_normal(vertices[1][0])
-		st.add_vertex(vertices[1][0])
-		var f = freq+1
-		var c = 2
-		for i in range(1, freq):
-			#Ensin ylöspäin osoittavat kolmiot
-			for j in range(i+1):
-				#c+=1
-				#st.add_color(colors[randi() % colors.size()])
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str(i*freq+j))
-				st.add_vertex(vertices[i][j])
-				#c+=2
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j+1))
-				st.add_vertex(vertices[i+1][j+1])
-				#c-=1
-				#print("index: "+str(c)+", "+str(i)+", "+str(j)+" = "+str((i+1)*freq+j))
-				st.add_vertex(vertices[i+1][j])
-			#Sitten alaspäin osoittavat kolmiot
-			for j in range(i):
-				#st.add_color(colors[randi() % colors.size()])
-#				st.add_normal(vertices[i][j])
-				st.add_vertex(vertices[i][j])
-#				st.add_normal(vertices[i][j+1])
-				st.add_vertex(vertices[i][j+1])
-#				st.add_normal(vertices[i+1][j+1])
-				st.add_vertex(vertices[i+1][j+1])
-	
-	func get_st():
-		calculate_vertices()
-		return(st)
 
-	
-	func _init(surface_tool, v0, v1, v2, frequence=1):
-		top = v0
-		right = v1
-		left = v2
-		freq = frequence
-		st = surface_tool
-		randomize ( )
-		
-	func calculate_vertices():
-		
-		var tl = left - top
-		var r = right - left
-		
-		var t_down = tl/freq
-		var t_right = r/freq
-		
-		var f = freq+1
-		
-		vertices.resize(f) 
-		for i in range(f):
-			vertices[i] = []
-			vertices[i].resize(i+1)
-		
-		for i in range(f):
-			#print(i)
-			for j in range(i+1):
-				#print("    "+str(j))
-				vertices[i][j]=(top+i*t_down + j*t_right)
-		#print(vertices)
-		meshify()
-	
+	func get_st():
+		tesselate()
+		return(st)
