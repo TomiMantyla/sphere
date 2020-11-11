@@ -1,4 +1,3 @@
-# sphere
 <h1>Creating procedural mesh, approximation of sphere, in Godot</h1>
 
 <p>There was two things I wanted to accomplish in this test.
