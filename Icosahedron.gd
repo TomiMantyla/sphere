@@ -1,7 +1,7 @@
 extends MeshInstance
 
-#export var edge_length=1.0
-export var frequency = 1
+export var freq3 = 1 #Because frequency has to be multiple of 3
+var frequency = 3
 
 const phi = (1+sqrt(5))/2
 
@@ -20,12 +20,14 @@ var ManipulatorFile = preload("res://MeshManipulator.gd")
 var start_time
 
 func _ready():
-	
 	start_time = OS.get_ticks_msec()
+	#Let's create icosahedron
+		
 	var tri
-	
+	frequency = freq3*3
 	vertices.resize(12)
 	
+	#Vertices of icosahedron
 	vertices[0] = Vector3(0.0, phi, 1.0)
 	vertices[1] = Vector3(1.0, 0.0, phi)
 	vertices[2] = Vector3(phi, 1.0, 0.0)
@@ -42,72 +44,30 @@ func _ready():
 	radius = vertices[0].length()
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	#Top --Who says which vertex is on top?
 	for i in range(1,6):
-		#st.add_vertex(vertices[0])
-		#st.add_vertex(vertices[i%5+1])
-		#st.add_vertex(vertices[i])
+		
+		#Top --Who says which vertex is on top?
 		tri = TriTess.new(st, vertices[0], vertices[i%5+1], vertices[i], frequency)
 		st = tri.get_st()
 #
-#	#Side
-#	st.add_color(Color.red)
-#	for i in range(1,6):
-#		st.add_vertex(vertices[i])
-#		st.add_vertex(vertices[i%5+1])
-#		st.add_vertex(vertices[i+5])
+#		#Sides
 		tri = TriTess.new(st, vertices[i], vertices[i%5+1], vertices[i+5], frequency)
 		st = tri.get_st()
-#
-#	st.add_color(Color.aquamarine)
-#	for i in range(1,6):
-#		st.add_vertex(vertices[i%5+1])
-#		st.add_vertex(vertices[i%5+6])
-#		st.add_vertex(vertices[i+5])
 		tri = TriTess.new(st, vertices[i%5+1], vertices[i%5+6], vertices[i+5], frequency)
 		st = tri.get_st()
+		
 		#Bottom
-#	for i in range(1, 6):
-#		st.add_vertex(vertices[11])
-#		st.add_vertex(vertices[i+5])
-#		st.add_vertex(vertices[i%5+6])
 		tri = TriTess.new(st, vertices[11], vertices[i+5], vertices[i%5+6], frequency)
 		st = tri.get_st()
-	#st.generate_normals()
-	#st.generate_tangents()
 	
 	st.index()
 	m=st.commit()
-	#print(m.surface_get_arrays(0)[ArrayMesh.ARRAY_NORMAL])
 	mesh = m
 	
-	
-		
 	var mani = ManipulatorFile.MeshManipulator.new(m)
-		
-#	mdt.set_vertex_color(6, Color.blue)
-#	for i in range(mdt.get_vertex_count()):
-#		var n = mani.get_neighbours(i)
-#		if n.size() == 4:
-#			mdt.set_vertex_color(i, Color.blue)
-#			for v in n:
-#				mdt.set_vertex_color(v, Color.white)
-
-	
-	
-	
 	m = mani.proximity_indexer(0.0001)
 	mdt.create_from_surface(m, 0)
 	
-	
-#	var hops = mani.dijkstra(0)[0]
-#	for i in range(mdt.get_vertex_count()):
-#		if hops[i]%2 == 0:
-#			mdt.set_vertex_color(i, Color.blue)
-#		else:
-#			mdt.set_vertex_color(i, Color.white)
-	
-
 	for i in range(mdt.get_vertex_count()):
 		var vertex = mdt.get_vertex(i)
 		mdt.set_vertex(i, vertex.normalized()*radius)
@@ -121,19 +81,9 @@ func _ready():
 	mdt.clear()
 	mdt.create_from_surface(m, 0)
 	hexify_flatten()
-	#hexify_color()
 	m.surface_remove(0)
 	mdt.commit_to_surface(m)
 	mesh = m
-	#print(mani.dijkstra(0))
-#	for i in range(mdt.get_vertex_count()):
-#		if mani.get_neighbours(i).size() == 0:
-#			print(i)
-#		else:
-#			print (mani.get_neighbours(i))
-	#print(mani.get_neighbours(0))
-#	for i in range(mdt.get_vertex_count()):
-#		print(mani.get_far_neighbours(i))
 	print("Mesh created in "+ str((OS.get_ticks_msec()-start_time)/1000.0)+" seconds.")
 
 
@@ -141,12 +91,9 @@ func hexify(start_index, visited = []):
 	visited.append(start_index)
 	var mm = ManipulatorFile.MeshManipulator.new(m)
 	var fn = mm.get_far_neighbours(start_index)
-	#mdt.set_vertex_color(start_index, Color.black)
 	var pv = mdt.get_vertex(mm.get_neighbours(start_index)[0])
 	var sv = mdt.get_vertex(start_index)
 	var mv = pv.dot(sv)/sv.dot(sv)*sv
-	#print(((pv.dot(sv)/sv.dot(sv))*sv).length())
-	#print(sv.length())
 	mdt.set_vertex(start_index, mv)
 	mdt.set_vertex_normal(start_index, mv)
 	mdt.set_vertex_color(start_index, Color.whitesmoke)
@@ -172,7 +119,7 @@ func hexify_color():
 			mdt.set_vertex_color(mdt.get_face_vertex(f, 1), Color.black)
 			mdt.set_vertex_color(mdt.get_face_vertex(f, 2), Color.black)
 
-func hexify_flatten(): #Tehoton, lasketaan turhaan moneen kertaan
+func hexify_flatten():
 	var mm = ManipulatorFile.MeshManipulator.new(m)
 	var normal
 	print(mdt.get_face_count())
@@ -193,7 +140,7 @@ func hexify_flatten(): #Tehoton, lasketaan turhaan moneen kertaan
 			normal = null
 
 func _process(delta): 
-	rotate_y(delta*0.5)
+	rotate_y(delta*0.3)
 
 class TriTess extends MeshInstance: #For creating triangular tessselations of triangles
 #Creates unindex mesh!

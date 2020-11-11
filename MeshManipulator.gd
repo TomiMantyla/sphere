@@ -1,7 +1,7 @@
 class MeshManipulator: #What should it extend? MeshDataTool?
 
-	var mmesh #Ehkä turha
-	var mdt = MeshDataTool.new() #Voitaisiin ehkä välittää viittauksena, eikä luoda uutta
+	var mmesh 
+	var mdt = MeshDataTool.new()
 
 
 	func _init(mesh0):
@@ -9,6 +9,7 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		mdt.create_from_surface(mmesh, 0)
 
 	func get_neighbours(index):
+	#Finds and returns neighbours of given vertex
 		var edges = mdt.get_vertex_edges(index)
 		var vertices = []
 		for e in edges:
@@ -19,6 +20,8 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		return vertices
 	
 	func get_far_neighbours(index):
+	#Finds neighbours of neighbours of vertex,
+	#or vertices two steps away.
 		var neigh=get_neighbours(index)
 		var nneig = []
 		for n in neigh:
@@ -81,8 +84,6 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 					min_dist = dist[v]
 					u = v
 			q.remove(q.find(u))
-			
-			
 			var neighbours = get_neighbours(u)
 			for v in neighbours:
 				var alt = dist[u] + 1
@@ -111,24 +112,14 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 		while v<vertices.size():
 			var u = v+1
 			while u<vertices.size():
-			#for u in range (v+1, vertices.size()):
 				if (vertices[v]-vertices[u]).length_squared()<ss:
 					vertices[u] = vertices[v]
-#					vertices.remove(u)
-#					for i in range(indices.size()):
-#						if indices[i]>u:
-#							indices[i]-=1
-							#print(indices[i])
-					#vcount-=1
-					#print(str(v)+ ", " +str(u))
 					if indices!=null:
 						var i = 0
 						while i<indices.size():
-						#for i in range(indices.size()):
 							if indices[i] == u:
 								var tri_i = i-i%3
 								if indices[tri_i] == v || indices[tri_i+1] == v || indices[tri_i+2] == v:
-									print(tri_i)
 									indices.remove(tri_i)
 									indices.remove(tri_i+1)
 									indices.remove(tri_i+2)
@@ -136,8 +127,6 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 								else:
 									indices[i] = v
 							i+=1
-							#print(i)
-#					u-=1
 				u+=1
 			v+=1
 		for v in range(vertices.size()-1, 0, -1):
@@ -150,26 +139,18 @@ class MeshManipulator: #What should it extend? MeshDataTool?
 				vertices.remove(v)
 				normals.remove(v)
 				colors.remove(v)
-				#print(v)
 				for i in range(indices.size()):
 					if indices[i]>=v:
 						indices[i]-=1
-		
-		
-		#print("ulos!")
-		#print(vertices)
-		#print(indices.size())
-	
+						
 		arrays.clear()
 		arrays.resize(ArrayMesh.ARRAY_MAX)
 		arrays[ArrayMesh.ARRAY_VERTEX] = vertices
 		arrays[ArrayMesh.ARRAY_NORMAL] = normals
 		arrays[ArrayMesh.ARRAY_INDEX] = indices
 		arrays[ArrayMesh.ARRAY_COLOR] = colors
-		#var arr_mesh = ArrayMesh.new()
 		mmesh.surface_remove(0)
 		mmesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		#mmesh = arr_mesh
 		mdt.create_from_surface(mmesh, 0)
 		return mmesh
 
