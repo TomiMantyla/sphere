@@ -16,13 +16,18 @@ _global_script_class_icons={
 [application]
 
 config/name="Sphere"
-run/main_scene="res://Cube-scene.tscn"
+run/main_scene="res://sphere.tscn"
 config/icon="res://icon.png"
 
 [display]
 
 window/size/width=720
 window/size/height=720
+window/vsync/use_vsync=false
+
+[physics]
+
+common/physics_fps=30
 
 [rendering]
 

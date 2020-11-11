@@ -1,9 +1,8 @@
 extends MeshInstance
 
-#export var edge_length=1.0
 export var frequency = 1
 
-const phi = (1+sqrt(5))/2
+const phi = (1+sqrt(5))/2 #Golden ratio
 
 var radius
 
@@ -15,10 +14,11 @@ var mdt = MeshDataTool.new()
 
 func _ready():
 	
+	#Let's create icosahedron
 	var tri
 	
 	vertices.resize(12)
-	
+	#Vertices of icosahedron
 	vertices[0] = Vector3(0.0, phi, 1.0)
 	vertices[1] = Vector3(1.0, 0.0, phi)
 	vertices[2] = Vector3(phi, 1.0, 0.0)
@@ -35,50 +35,28 @@ func _ready():
 	radius = vertices[0].length()
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	#Top --Who says which vertex is on top?
 	st.add_color(Color.blue)
+	#Edges of icosahedron
 	for i in range(1,6):
-		#st.add_vertex(vertices[0])
-		#st.add_vertex(vertices[i%5+1])
-		#st.add_vertex(vertices[i])
+		#Top --Who says which vertex is on top?
 		tri = TriTess.new(st, vertices[0], vertices[i%5+1], vertices[i], frequency)
 		st = tri.get_st()
-	
-	#st.add_vertex(vertices[0])
-	#st.add_vertex(vertices[5])
-	#st.add_vertex(vertices[1])
-	
 		
-	#Bottom
-#	for i in range(1, 6):
-#		st.add_vertex(vertices[11])
-#		st.add_vertex(vertices[i+5])
-#		st.add_vertex(vertices[i%5+6])
+		#Bottom
 		tri = TriTess.new(st, vertices[11], vertices[i+5], vertices[i%5+6], frequency)
 		st = tri.get_st()
 #
-#	#Side
-#	st.add_color(Color.red)
-#	for i in range(1,6):
-#		st.add_vertex(vertices[i])
-#		st.add_vertex(vertices[i%5+1])
-#		st.add_vertex(vertices[i+5])
+#		#Sides
 		tri = TriTess.new(st, vertices[i], vertices[i%5+1], vertices[i+5], frequency)
 		st = tri.get_st()
-#
-#	st.add_color(Color.aquamarine)
-#	for i in range(1,6):
-#		st.add_vertex(vertices[i%5+1])
-#		st.add_vertex(vertices[i%5+6])
-#		st.add_vertex(vertices[i+5])
+
 		tri = TriTess.new(st, vertices[i%5+1], vertices[i%5+6], vertices[i+5], frequency)
 		st = tri.get_st()
-		
-	#st.generate_normals()
-	#mesh = st.commit()
-	
+
 	m=st.commit()
 	mdt.create_from_surface(m, 0)
+	#Okay, this thing will not be icosahedron after this.
+	#Pushes vertices out to approximate sphere
 	for i in range(mdt.get_vertex_count()):
 		var vertex = mdt.get_vertex(i)
 		mdt.set_vertex(i, vertex.normalized()*radius)
@@ -87,12 +65,10 @@ func _ready():
 	mesh = m
 	
 func _process(delta): 
-	rotate_y(delta)
+	rotate_y(delta*0.3)
 
 class TriTess extends MeshInstance:
-
-	# Member variables
-	#export var side_length = 2.0
+#Inner class for tesselating faces of icosahedron
 	var freq = 1
 	
 	var top 
@@ -104,45 +80,7 @@ class TriTess extends MeshInstance:
 	var st
 	
 	var colors = [Color.red, Color.blue, Color.yellow, Color.green, Color.magenta, Color.cyan]
-	
-	#const hcoff = 0.86602540378
-	
-	func meshify():
-		#st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		#Ensimmäinen kolmio
-		st.add_color(Color.red)
-		st.add_normal(vertices[0][0])
-		st.add_vertex(vertices[0][0])
-		st.add_normal(vertices[1][1])
-		st.add_vertex(vertices[1][1])
-		st.add_normal(vertices[1][0])
-		st.add_vertex(vertices[1][0])
-		var f = freq+1
-		for i in range(1, freq):
-			for j in range(i+1):
-				#Ensin ylöspäin osoittavat kolmiot
-				st.add_color(colors[randi() % colors.size()])
-				st.add_normal(vertices[i][j])
-				st.add_vertex(vertices[i][j])
-				st.add_normal(vertices[i+1][j+1])
-				st.add_vertex(vertices[i+1][j+1])
-				st.add_normal(vertices[i+1][j])
-				st.add_vertex(vertices[i+1][j])
-				#Sitten alaspäin osoittavat kolmiot
-			for j in range(i):
-				st.add_color(colors[randi() % colors.size()])
-				st.add_normal(vertices[i][j])
-				st.add_vertex(vertices[i][j])
-				st.add_normal(vertices[i][j+1])
-				st.add_vertex(vertices[i][j+1])
-				st.add_normal(vertices[i+1][j+1])
-				st.add_vertex(vertices[i+1][j+1])
-		#st.generate_normals()
-	
-	func get_st():
-		calculate_vertices()
-		return(st)
-	
+
 	func _init(surface_tool, v0, v1, v2, frequence=1):
 		top = v0
 		right = v1
@@ -151,8 +89,44 @@ class TriTess extends MeshInstance:
 		st = surface_tool
 		randomize ( )
 		
-	func calculate_vertices():
+	func meshify():
+	#Tesselates triangle into smaller triangles
+		#First or top triangle
+		st.add_color(Color.red)
+		st.add_normal(vertices[0][0])
+		st.add_vertex(vertices[0][0])
+		st.add_normal(vertices[1][1])
+		st.add_vertex(vertices[1][1])
+		st.add_normal(vertices[1][0])
+		st.add_vertex(vertices[1][0])
+		var f = freq+1
+		#Triangles pointing up
+		for i in range(1, freq):
+			for j in range(i+1):
+				st.add_color(colors[randi() % colors.size()])
+				st.add_normal(vertices[i][j])
+				st.add_vertex(vertices[i][j])
+				st.add_normal(vertices[i+1][j+1])
+				st.add_vertex(vertices[i+1][j+1])
+				st.add_normal(vertices[i+1][j])
+				st.add_vertex(vertices[i+1][j])
+			#Triangles pointing down
+			for j in range(i):
+				st.add_color(colors[randi() % colors.size()])
+				st.add_normal(vertices[i][j])
+				st.add_vertex(vertices[i][j])
+				st.add_normal(vertices[i][j+1])
+				st.add_vertex(vertices[i][j+1])
+				st.add_normal(vertices[i+1][j+1])
+				st.add_vertex(vertices[i+1][j+1])
+	
+	func get_st():
+		calculate_vertices()
+		return(st)
 		
+	func calculate_vertices():
+	#Calculates coordinates for tesselation
+	#and then tesselates triangle using meshify()	
 		var tl = left - top
 		var r = right - left
 		
@@ -167,16 +141,10 @@ class TriTess extends MeshInstance:
 			vertices[i].resize(i+1)
 		
 		for i in range(f):
-			#print(i)
 			for j in range(i+1):
-				#print("    "+str(j))
 				vertices[i][j]=(top+i*t_down + j*t_right)
-		#print(vertices)
 		for i in range(f+1):
 			for j in range(i+1):
 				pass
 		meshify()
-	
-	#func _process(delta): 
-		#rotate_y(delta)
-	
+		
